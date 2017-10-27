@@ -1,0 +1,76 @@
+
+global argv argc
+
+if argc != 2 and argc != 3 then
+    print "usage: bf <file>"
+    print "     | bf -e <program>"
+    exit 1
+
+//read file's contents into string
+var text = ""
+
+if argc == 3 then
+    text = Str (argv#2)
+else
+    var f = InFile Str(argv#1)
+    for line in f do
+        text = text ++ line
+
+fun calloc: usz nItems elemSize -> void*;
+
+var data_pointer = u8* calloc 256 1
+var data_idx = 0
+
+var text_idx = 0
+        
+//main interpreter loop
+while text_idx < text.len do
+    let c = text.cStr#text_idx
+    if c == '>' then
+        data_idx += 1
+
+    elif c == '<' then
+        data_idx -= 1
+
+    elif c == '+' then
+        data_pointer#data_idx += 1u8
+
+    elif c == '-' then
+        data_pointer#data_idx -= 1u8
+
+    elif c == '.' then
+        putchar c8(data_pointer#data_idx)
+
+    elif c == ',' then
+        data_pointer#data_idx = u8 getchar()
+
+    elif c == '[' then
+        if data_pointer#data_idx == '\0' then
+            var nested = 1
+            text_idx += 1
+            while nested > 0 do
+                let c = text#text_idx
+                if c == '[' then nested += 1
+                elif c == ']' then nested -=1
+                text_idx += 1
+
+            continue
+
+    elif c == ']' then
+        if data_pointer#data_idx != '\0' then
+            var nested = 1
+            text_idx -= 1
+            while nested > 0 do
+                let c = text#text_idx
+                if c == ']' then nested += 1
+                elif c == '[' then nested -= 1
+                text_idx -= 1
+
+    elif c == '?' then
+        for i in 0..5 do
+            printf "Cell %d: %d\n" i (data_pointer#i)
+        printf "Pointer %d\n" data_idx
+
+    text_idx += 1
+
+//free data_pointer
