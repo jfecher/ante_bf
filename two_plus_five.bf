@@ -7,3 +7,7 @@
 [<++++++>-]
 
 <.
+
+
+[-]          set cell 2 to 0
+++++++++++.  output newline
