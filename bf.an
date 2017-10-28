@@ -10,67 +10,63 @@ if argc != 2 and argc != 3 then
 var text = ""
 
 if argc == 3 then
+    //read from stdin
     text = Str (argv#2)
 else
+    //read from file
     var f = InFile Str(argv#1)
     for line in f do
         text = text ++ line
 
+
 fun calloc: usz nItems elemSize -> void*;
 
-var data_pointer = u8* calloc 256 1
-var data_idx = 0
+var data_ptr = u8* calloc 256 1
+var text_ptr = c8* text.cStr
 
-var text_idx = 0
-        
 //main interpreter loop
-while text_idx < text.len do
-    let c = text.cStr#text_idx
+while @text_ptr != '\0' do
+    let c = @text_ptr
     if c == '>' then
-        data_idx += 1
+        data_ptr += 1
 
     elif c == '<' then
-        data_idx -= 1
+        data_ptr -= 1
 
     elif c == '+' then
-        data_pointer#data_idx += 1u8
+        @data_ptr += 1u8
 
     elif c == '-' then
-        data_pointer#data_idx -= 1u8
+        @data_ptr -= 1u8
 
     elif c == '.' then
-        putchar c8(data_pointer#data_idx)
+        putchar c8(@data_ptr)
 
     elif c == ',' then
-        data_pointer#data_idx = u8 getchar()
+        @data_ptr = u8 getchar()
 
     elif c == '[' then
-        if data_pointer#data_idx == '\0' then
+        if @data_ptr == '\0' then
             var nested = 1
-            text_idx += 1
+            text_ptr += 1
             while nested > 0 do
-                let c = text#text_idx
+                let c = @text_ptr
                 if c == '[' then nested += 1
                 elif c == ']' then nested -=1
-                text_idx += 1
+                text_ptr += 1
 
             continue
 
     elif c == ']' then
-        if data_pointer#data_idx != '\0' then
+        if @data_ptr != '\0' then
             var nested = 1
-            text_idx -= 1
+            text_ptr -= 1
             while nested > 0 do
-                let c = text#text_idx
+                let c = @text_ptr
                 if c == ']' then nested += 1
                 elif c == '[' then nested -= 1
-                text_idx -= 1
+                text_ptr -= 1
 
-    elif c == '?' then
-        for i in 0..5 do
-            printf "Cell %d: %d\n" i (data_pointer#i)
-        printf "Pointer %d\n" data_idx
-
-    text_idx += 1
+    text_ptr += 1
 
 //free data_pointer
