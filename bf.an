@@ -1,6 +1,4 @@
 
-global argv argc
-
 if argc != 2 and argc != 3 then
     print "usage: bf <file>"
     print "     | bf -e <program>"
@@ -15,6 +13,10 @@ if argc == 3 then
 else
     //read from file
     var f = InFile Str(argv#1)
+    if void* (File f) == void* 0 then
+        print "Cannot find file '${argv#1}'"
+        exit 1
+
     for line in f do
         text = text ++ line
 
